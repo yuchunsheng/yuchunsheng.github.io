@@ -1,0 +1,62 @@
+<html>
+<head>
+<title> install tensorflow in Conda with pip
+</head>
+<body>
+install tensorflow in Conda with pip
+## https://www.tensorflow.org/install/pip
+## https://github.com/tensorflow/tensorflow/issues/57679
+## https://stackoverflow.com/questions/46826497/conda-set-ld-library-path-for-env-only
+1) create a new environment with : 
+a) you need python 3.8 to install nvidia-tensorrt 7.x later on, otherwise pip won't found this specific version
+mamba create --name tf-py38 python=3.8
+b) conda activate tf-py38
+
+2) install cuda and cudnn
+conda install -c conda-forge cudatoolkit=11.2 cudnn=8.1.0
+3) install tensorrt
+a) pip install --upgrade setuptools pip
+b) pip install nvidia-pyindex
+c) check for desired specific tensorrt-versions -> pip install nvidia-tensorrt==
+py3.10 -> available from 8.4.0.+
+py3.9 -> available from 8.0.+
+py3.8 -> available from 7.2.2.+
+
+d) pip install nvidia-tensorrt==7.2.3.4
+e) verify -> python3 -c "import tensorrt; print(tensorrt.__version__); assert tensorrt.Builder(tensorrt.Logger())"
+
+4) Configure the system paths once again as before to contain tensorrt path:
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$CONDA_PREFIX/lib/:$CONDA_PREFIX/lib/python3.8/site-packages/tensorrt/
+
+5) install tensorflow
+python -m pip install tensorflow
+6) Verify install:
+python -c "import tensorflow as tf; print(tf.config.list_physical_devices('GPU'))"
+
+7)set conda environment variables when an environment is activated by editing the activate.d/env_vars.sh script
+Locate the directory for the conda environment in your Terminal window, such as /home/jsmith/anaconda3/envs/???.
+
+a) Enter that directory and create these subdirectories and files:
+
+cd /home/jsmith/anaconda3/envs/analytics
+mkdir -p ./etc/conda/activate.d
+mkdir -p ./etc/conda/deactivate.d
+touch ./etc/conda/activate.d/env_vars.sh
+touch ./etc/conda/deactivate.d/env_vars.sh
+b)
+Edit ./etc/conda/activate.d/env_vars.sh as follows:
+
+#!/bin/sh
+export MY_KEY='secret-key-value'
+export MY_FILE=/path/to/my/file/
+
+c)
+Edit ./etc/conda/deactivate.d/env_vars.sh as follows::
+
+#!/bin/sh
+unset MY_KEY
+unset MY_FILE
+
+
+</body>
+</html>
